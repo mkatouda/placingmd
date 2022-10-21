@@ -1,0 +1,14 @@
+ligand: './inputs/1iep_ligand.sdf'
+refligand: './inputs/1iep_ligand.sdf'
+receptor: './inputs/1iep_receptorH.pdbqt'
+out: '1iep_ligand_out.pdbqt'
+vina_center_x: 15.190
+vina_center_y: 53.903
+vina_center_z: 16.917
+vina_size_x: 20.0
+vina_size_y: 20.0
+vina_size_z: 20.0
+vina_cpu: 8
+vina_exhaustiveness: 8
+vina_num_modes: 9
+vina_seed: 1234
