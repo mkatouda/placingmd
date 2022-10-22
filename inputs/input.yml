@@ -1,7 +1,9 @@
 ligand: './inputs/1iep_ligand.sdf'
 refligand: './inputs/1iep_ligand.sdf'
-receptor: './inputs/1iep_receptorH.pdbqt'
+receptor_pdbqt: './inputs/1iep_receptorH.pdbqt'
+receptor: './inputs/1iep_receptorH.pdb'
 out: '1iep_ligand_out.pdbqt'
+output: '1iep_protein_ligand'
 vina_center_x: 15.190
 vina_center_y: 53.903
 vina_center_z: 16.917
@@ -12,3 +14,12 @@ vina_cpu: 8
 vina_exhaustiveness: 8
 vina_num_modes: 9
 vina_seed: 1234
+md_ffligand: 'gaff'
+md_ffpritein: 'amber99sb-ildn'
+md_charge_method: 'qeq'
+md_water: 'tip3p'
+md_box_type: 'dodecahedron'
+md_box_buff: 1.0
+md_pname: 'NA'
+md_nname: 'CL'
+verbose: True

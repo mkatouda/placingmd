@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-import sys
-import os
-import shutil
-import argparse
-
-import yaml
-from meekovina import vina_dock
 
 """
 # placingmd
@@ -36,6 +29,15 @@ pip install .
 
 """
 
+import sys
+import os
+import shutil
+import argparse
+
+import yaml
+from meekovina import vina_dock
+from stage3 import stage3_run
+
 def get_parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -43,132 +45,235 @@ def get_parser():
         #"- Ligand input from LIGAND file\n"
         #"meekovina -l LIGAND -r RECEPTOR -o OUTPUT -cx CENTER_X -cy CENTER_Y -cz CENTER_Z\n\n"
         #"- Ligand input from file and center of box is determined by the REFLIGAND file\n"
-        #"meekovina -l LIGAND -r RECEPTOR -rl REFLIGAND -o OUTPUT\n\n"
+        #"meekovina -l LIGAND -r RECEPTOR -lr REFLIGAND -o OUTPUT\n\n"
         #"- Ligand input from SMILES string\n"
         #"meekovina --input_smiles INPUT_SMILES -r RECEPTOR -o OUTPUT -cx CENTER_X -cy CENTER_Y -cz CENTER_Z\n\n"
         #"- Ligand input from SMILES string and center of box is determined by the REFLIGAND file\n"
-        #"meekovina --input_smiles INPUT_SMILES -r RECEPTOR -rl REFLIGAND -o OUTPUT\n"
+        #"meekovina --input_smiles INPUT_SMILES -r RECEPTOR -lr REFLIGAND -o OUTPUT\n"
     )
     parser.add_argument(
-        "-i", "--input", type=str,
-        help="yaml style input file, overwriting argument values",
+        '-i', '--inp', type=str,
+        help = "yaml style input file, overwriting argument values"
     )
     parser.add_argument(
-        "-l", "--ligand", type=str,
-        help="ligand (PDBQT, MOL, SDF, MOL2, PDB)"
+        '-l', '--ligand', type=str,
+        help = "ligand (PDBQT, MOL, SDF, MOL2, PDB)"
     )
     parser.add_argument(
-        "-r", "--receptor", type=str,
-        help="rigid part of the receptor (PDBQT)"
+        '-r', '--receptor', type=str,
+        help = 'Merge the created coordinates file (.gro) with an '
+        'already existing coordinate file (.pdb or .gro), '
+        'e.g. for combining '
+        'ligand coordinates with protein coordinates. The generated topology '
+        'will contain both the ligand and the protein. If a .gro file of the '
+        'protein is provided and there exists a corresponding .top file that '
+        'toplogy file will be used for the protein, otherwise a new topology '
+        'file is generated.'
     )
     parser.add_argument(
-        "-o", "--out", type=str,
-        help="output models (PDBQT), the default is chosen based on the ligand file name"
+        '-t', '--md_mergetopology',
+        help = 'Merge the created topology file (.top) with an '
+        'already existing topology file. '
+        'Must be used in combination with --mergecoordinates '
+        'with a .gro file of the protein.'
     )
     parser.add_argument(
-        "--input_smiles", type=str,
-        help="SMILES string (Need to put the atom you want to extend at the end of the string)"
+        '-rqt', '--receptor_pdbqt', type=str,
+        help = "rigid part of the receptor (PDBQT)"
     )
     parser.add_argument(
-        "-rl","--refligand", type=str,
-        help="ligand (PDBQT, MOL, SDF, MOL2, PDB) to determine the box center"
+        '-s', '--input_smiles', type=str,
+         help = 'Use the specified smiles string as input '
+        'instead of an input file (must be inside quotes).'
     )
     parser.add_argument(
-        "--vina_center_x", type=float,
-        help="X coordinate of the center"
+        '-lr', '--refligand', type=str,
+        help = "reference ligand (PDBQT, MOL, SDF, MOL2, PDB) to determine the box center"
     )
     parser.add_argument(
-        "--vina_center_y", type=float,
-        help="Y coordinate of the center"
+        '-o', '--out', type=str,
+        help = "output models (PDBQT), the default is chosen based on the ligand file name"
     )
     parser.add_argument(
-        "--vina_center_z", type=float,
-        help="Z coordinate of the center"
+        '--output', type=str,
+        help = "Base name of the output files of MD input (file extensions will be appended)."
+    )
+
+    parser.add_argument(
+        '--vina_center_x', type=float,
+        help = "X coordinate of the center"
     )
     parser.add_argument(
-        "--vina_size_x", type=float, default=22.5,
-        help="size in the X dimension (Angstroms)"
+        '--vina_center_y', type=float,
+        help = "Y coordinate of the center"
     )
     parser.add_argument(
-        "--vina_size_y", type=float, default=22.5,
-        help="size in the Y dimension (Angstroms)"
+        '--vina_center_z', type=float,
+        help = "Z coordinate of the center"
     )
     parser.add_argument(
-        "--vina_size_z", type=float, default=22.5,
-        help="size in the Z dimension (Angstroms)"
+        '--vina_size_x', type=float, default=22.5,
+        help = "size in the X dimension (Angstroms)"
     )
     parser.add_argument(
-        "--vina_cpu", type=int, default=4,
-        help="the number of CPUs to use (the default is to try to"
+        '--vina_size_y', type=float, default=22.5,
+        help = "size in the Y dimension (Angstroms)"
+    )
+    parser.add_argument(
+        '--vina_size_z', type=float, default=22.5,
+        help = "size in the Z dimension (Angstroms)"
+    )
+    parser.add_argument(
+        '--vina_cpu', type=int, default=4,
+        help = "the number of CPUs to use (the default is to try to"
         "detect the number of CPUs or, failing that, use 1)"
     )
     parser.add_argument(
-        "--vina_scoring", type=str, default='vina',
-        help="force field name: vina(default), ad4, vinardo"
+        '--vina_scoring', type=str, default='vina',
+        help = "force field name: vina(default), ad4, vinardo"
     )
     parser.add_argument(
-        "--vina_seed", type=int, default=0,
-        help="explicit random seed"
+        '--vina_seed', type=int, default=0,
+        help = "explicit random seed"
     )
     parser.add_argument(
-        "--vina_exhaustiveness", type=int, default=8,
-        help="exhaustiveness of the global search"
+        '--vina_exhaustiveness', type=int, default=8,
+        help = "exhaustiveness of the global search"
         "(roughly proportional to time): 1+"
     )
     parser.add_argument(
-        "--vina_max_evals", type=int, default=0,
-        help="number of evaluations in each MC run (if zero,"
+        '--vina_max_evals', type=int, default=0,
+        help = "number of evaluations in each MC run (if zero,"
         "which is the default, the number of MC steps is"
         "based on heuristics)"
     )
     parser.add_argument(
-        "--vina_num_modes", type=int, default=9,
-        help="maximum number of binding modes to generate"
+        '--vina_num_modes', type=int, default=9,
+        help = "maximum number of binding modes to generate"
     )
     parser.add_argument(
-        "--vina_min_rmsd", type=int, default=1,
-        help="minimum RMSD between output poses"
+        '--vina_min_rmsd', type=int, default=1,
+        help = "minimum RMSD between output poses"
     )
     parser.add_argument(
-        "--vina_energy_range", type=int, default=3,
-        help="maximum energy difference between the best binding"
+        '--vina_energy_range', type=int, default=3,
+        help = "maximum energy difference between the best binding"
         "mode and the worst one displayed (kcal/mol)"
     )
     parser.add_argument(
-        "--vina_spacing", type=float, default=0.375,
-        help="grid spacing (Angstrom)"
+        '--vina_spacing', type=float, default=0.375,
+        help = "grid spacing (Angstrom)"
     )
     parser.add_argument(
-        "--vina_verbosity", type=int, default=1,
-        help="verbosity (0=no output, 1=normal, 2=verbose)"
+        '--vina_verbosity', type=int, default=1,
+        help = "verbosity (0=no output, 1=normal, 2=verbose)"
     )
     parser.add_argument(
-        "--vina_score_only", action='store_true',
-        help="evaluate the energy of the current pose or poses without strucutre optimization"
+        '--vina_score_only', action='store_true',
+        help = "evaluate the energy of the current pose or poses without strucutre optimization"
     )
     parser.add_argument(
-        "--vina_local_only", action='store_true',
-        help="evaluate the energy of the current pose or poses with local structure optimization"
+        '--vina_local_only', action='store_true',
+        help = "evaluate the energy of the current pose or poses with local structure optimization"
     )
     parser.add_argument(
-        "--vina_exec", type=str, default='lib',
-        help="select AutoDock-Vina executer"
+        '--vina_exec', type=str, default='lib',
+        help = "select AutoDock-Vina executer"
     )
     parser.add_argument(
-        "--vina_bin_path", type=str, default='vina',
-        help="AutoDock-Vina binary path"
+        '--vina_bin_path', type=str, default='vina',
+        help = "AutoDock-Vina binary path"
     )
     parser.add_argument(
-        "--vina_boxauto", action='store_true',
-        help="boxauto"
+        '--vina_boxauto', action='store_true',
+        help = 'boxauto'
     )
     parser.add_argument(
-        "--vina_gybox_ratio", type=float, default=2.5,
-        help="box ratio"
+        '--vina_gybox_ratio', type=float, default=2.5,
+        help = "box ratio"
     )
     parser.add_argument(
-        "-d", "--debug", action='store_true',
-        help="debug mode"
+        '--md_ffligand', type=str, default='gaff',
+        help = 'Force fields to generate parameters for, specified as a '
+        'comma-separated string without spaces.'
+    )
+    parser.add_argument(
+        '--md_ffprotein',
+        help = 'Force field of protein.'
+    )
+    parser.add_argument(
+        '--md_calibration',
+        help = 'Modify van der Waals parameters according to specified '
+        'calibration file.'
+    )
+    parser.add_argument(
+        '--md_keep_ligand_name', action='store_true',
+        help = 'Do not rename the ligand in the output files. '
+        'When doing e.g. solvation or binding free energy '
+        'it is convenient to always call the ligand the '
+        'same thing - in this case "LIG". If this option '
+        'is set the ligand name will not be changed to "LIG". '
+        'If you need to assign parameters to e.g. co-factors '
+        'it is good to keep their names to tell them apart '
+        'from ligands.'
+    )
+    parser.add_argument(
+        '--md_ph',
+        help = 'Protonate the molecule according to this pH (float). '
+        'This does not always give correct results. It is safer '
+        'to provide correctly protonated input files.'
+    )
+    #parser.add_argument(
+    #    '--md_virtualhydrogens', action='store_true',
+    #    help = 'Turn hydrogens into virtual interaction sites to allow longer '
+    #    'timesteps (experimental).'
+    #)
+    parser.add_argument(
+        '--md_retain_charges', action='store_true',
+        help = 'Keep the mol2 charges.'
+    )
+    parser.add_argument(
+        '--md_charge_method', type=str, default='am1bcc',
+        help = 'Use the specified charge method for all force fields.'
+    )
+    #   choices = standardChargeMethods + chargePluginNameList,
+    #   help = 'Use the specified charge method for all force fields. ' + ', '.join(chargeMethodsHelp))
+    parser.add_argument(
+        '--md_charge_multiplier', type=float, default=1.0,
+        help = 'Multiply partial charges with this factor. Can only be used '
+        'in combination with --charge_method.'
+    )
+    parser.add_argument(
+        '--md_box_type', type=str, default='dodecahedron',
+        help = 'Buffer from the solute to the edge of the '
+        'dodecahedron shaped solvent box. Set to 0 '
+        'to disable solvation (and ionisation).\n'
+        'Default: dodecahedron'
+    )
+    parser.add_argument(
+        '--md_box_buffer', type=float, default=1.0,
+        help = 'Buffer from the solute to the edge of the '
+        'solvent box. Set to 0 '
+        'to disable solvation (and ionisation).\n'
+    )
+    parser.add_argument(
+        '--md_water',
+        help = 'Solvent model to use in topology files. If not '
+        'specified the solvent will not be specified in '
+        'the topology. Suggested water models are: '
+        '"opc", "spce", "tip4pew", "spc" or "tip3p".'
+    )
+    parser.add_argument(
+        '--md_pname', type=str, default='NA',
+        help = 'Name of the positive counter ion in Solvent.'
+    )
+    parser.add_argument(
+        '--md_nname', type=str, default='CL',
+        help = 'Name of the negative counter ion in Solvent.'
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true',
+        help = 'Verbose output.'
     )
     args = parser.parse_args()
 
@@ -184,22 +289,21 @@ def get_parser():
 
 def set_config(args):
     # Read config yaml file
-    if args.input is not None and os.path.isfile(args.input):
-        with open(args.input, 'r') as f:
+    if args.inp is not None and os.path.isfile(args.inp):
+        with open(args.inp, 'r') as f:
             conf = yaml.safe_load(f)
     else:
         conf = {}
 
     # Set up default config values from program arguments
     conf_def = vars(args).copy()
-    del conf_def['input'], conf_def['debug']
-    conf_def = {k: v for k, v in conf_def.items() if v is not None}
+    del conf_def['inp']
     [conf.setdefault(k, v) for k, v in conf_def.items()]
 
     return conf
 
-def vina_dock_run(conf, debug=False):
-    protein_pdbqt_path = conf['receptor']
+def vina_dock_main(conf):
+    protein_pdbqt_path = conf['receptor_pdbqt']
     ligand_path = conf['ligand']
     ref_ligand_path = conf['refligand']
     vina_exec = conf['vina_exec']
@@ -220,6 +324,7 @@ def vina_dock_run(conf, debug=False):
     vina_verbosity = conf['vina_verbosity']
     vina_score_only = conf['vina_score_only']
     vina_local_only = conf['vina_local_only']
+    debug = conf['verbose']
 
     print('vina_boxcenter:', vina_boxcenter)
 
@@ -248,10 +353,39 @@ def vina_dock_run(conf, debug=False):
 
     return scores
        
+def stage3_main(conf):
+    #ligand = conf['ligand']
+    ligand = './{}_vinaout_{:02}.mol'.format(os.path.splitext(os.path.basename(conf['ligand']))[0], 0)
+    smiles = conf['input_smiles']
+    output = conf['output']
+    ffligand = conf['md_ffligand']
+    ffprotein = conf['md_ffprotein']
+    calibration = conf['md_calibration']
+    keep_ligand_name = conf['md_keep_ligand_name']
+    ph = conf['md_ph']
+    retain_charges = conf['md_retain_charges']
+    charge_method = conf['md_charge_method']
+    charge_method = conf['md_charge_method']
+    charge_multiplier = conf['md_charge_multiplier']
+    mergecoordinates = conf['receptor']
+    mergetopology = conf['md_mergetopology']
+    box_type = conf['md_box_type']
+    box_buffer = conf['md_box_buffer']
+    water = conf['md_water']
+    pname = conf['md_pname']
+    nname = conf['md_nname']
+    verbose = conf['verbose']
+
+    print('ligand:', ligand)
+
+    stage3_run(ligand, smiles, output, ffligand, ffprotein, calibration, 
+               keep_ligand_name, ph, retain_charges, charge_method, charge_multiplier,
+               mergecoordinates, mergetopology, box_type, box_buffer,
+               water, pname, nname, verbose)
+
 def main():
     args = get_parser()
-    debug = args.debug
-    if debug: print(args)
+    if args.verbose: print(args)
 
     conf = set_config(args)
 
@@ -260,7 +394,9 @@ def main():
         print('{}: {}'.format(k, v))
     print('====================================')
 
-    vina_dock_run(conf, debug=debug)
+    vina_dock_main(conf)
+
+    stage3_main(conf)
 
 if __name__ == '__main__':
     main()

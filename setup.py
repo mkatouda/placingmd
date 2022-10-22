@@ -4,7 +4,7 @@ setup(
     name="placingmd",
     version="0.0.1",
     install_requires=[
-        "pyyaml", "numpy", "scipy", "pandas", "rdkit", "meeko",
+        "pyyaml", "numpy", "scipy", "pandas", "rdkit", "meeko", "meekovina", "stage3",
     ],
     entry_points={
         'console_scripts': [
