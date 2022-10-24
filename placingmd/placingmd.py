@@ -60,8 +60,21 @@ def get_parser():
         help = "ligand (PDBQT, MOL, SDF, MOL2, PDB)"
     )
     parser.add_argument(
+        '-s', '--input_smiles', type=str,
+         help = 'use the specified smiles string as input '
+        'instead of an input file (must be inside quotes).'
+    )
+    parser.add_argument(
+        '-lr', '--refligand', type=str,
+        help = "reference ligand (PDBQT, MOL, SDF, MOL2, PDB) to determine the box center"
+    )
+    parser.add_argument(
+        '-rqt', '--receptor_pdbqt', type=str,
+        help = "rigid part of the receptor (PDBQT)"
+    )
+    parser.add_argument(
         '-r', '--receptor', type=str,
-        help = 'Merge the created coordinates file (.gro) with an '
+        help = 'merge the created coordinates file (.gro) with an '
         'already existing coordinate file (.pdb or .gro), '
         'e.g. for combining '
         'ligand coordinates with protein coordinates. The generated topology '
@@ -72,31 +85,30 @@ def get_parser():
     )
     parser.add_argument(
         '-t', '--md_mergetopology',
-        help = 'Merge the created topology file (.top) with an '
+        help = 'merge the created topology file (.top) with an '
         'already existing topology file. '
         'Must be used in combination with --mergecoordinates '
         'with a .gro file of the protein.'
     )
     parser.add_argument(
-        '-rqt', '--receptor_pdbqt', type=str,
-        help = "rigid part of the receptor (PDBQT)"
-    )
-    parser.add_argument(
-        '-s', '--input_smiles', type=str,
-         help = 'Use the specified smiles string as input '
-        'instead of an input file (must be inside quotes).'
-    )
-    parser.add_argument(
-        '-lr', '--refligand', type=str,
-        help = "reference ligand (PDBQT, MOL, SDF, MOL2, PDB) to determine the box center"
-    )
-    parser.add_argument(
         '-o', '--out', type=str,
         help = "output models (PDBQT), the default is chosen based on the ligand file name"
     )
+    #parser.add_argument(
+    #    '--output', type=str,
+    #    help = "Base name of the output files of MD input (file extensions will be appended)."
+    #)
     parser.add_argument(
-        '--output', type=str,
-        help = "Base name of the output files of MD input (file extensions will be appended)."
+        '-v', '--verbose', action='store_true',
+        help = 'verbose output.'
+    )
+    parser.add_argument(
+        '--runvina', action='store_false',
+        help = 'run AutoDock Vina docking.'
+    )
+    parser.add_argument(
+        '--runmdinput', action='store_false',
+        help = 'run MD input generator.'
     )
 
     parser.add_argument(
@@ -177,14 +189,6 @@ def get_parser():
         help = "evaluate the energy of the current pose or poses with local structure optimization"
     )
     parser.add_argument(
-        '--vina_exec', type=str, default='lib',
-        help = "select AutoDock-Vina executer"
-    )
-    parser.add_argument(
-        '--vina_bin_path', type=str, default='vina',
-        help = "AutoDock-Vina binary path"
-    )
-    parser.add_argument(
         '--vina_boxauto', action='store_true',
         help = 'boxauto'
     )
@@ -193,22 +197,35 @@ def get_parser():
         help = "box ratio"
     )
     parser.add_argument(
-        '--md_ffligand', type=str, default='gaff',
-        help = 'Force fields to generate parameters for, specified as a '
+        '--vina_exec', type=str, default='lib',
+        help = "select AutoDock-Vina executer"
+    )
+    parser.add_argument(
+        '--vina_bin_path', type=str, default='vina',
+        help = "AutoDock-Vina binary path"
+    )
+    parser.add_argument(
+        '--md_ligand_id', type=str, default='0',
+        help = 'target Ligand ID(s) to generate MD input, specified as a'
         'comma-separated string without spaces.'
     )
     parser.add_argument(
-        '--md_ffprotein',
-        help = 'Force field of protein.'
+        '--md_ffligand', type=str, default='gaff',
+        help = 'force fields to generate parameters for, specified as a '
+        'comma-separated string without spaces.'
     )
     parser.add_argument(
-        '--md_calibration',
-        help = 'Modify van der Waals parameters according to specified '
+        '--md_ffprotein', type=str,
+        help = 'force field of protein.'
+    )
+    parser.add_argument(
+        '--md_calibration', type=str,
+        help = 'modify van der Waals parameters according to specified '
         'calibration file.'
     )
     parser.add_argument(
         '--md_keep_ligand_name', action='store_true',
-        help = 'Do not rename the ligand in the output files. '
+        help = 'do not rename the ligand in the output files. '
         'When doing e.g. solvation or binding free energy '
         'it is convenient to always call the ligand the '
         'same thing - in this case "LIG". If this option '
@@ -218,7 +235,7 @@ def get_parser():
         'from ligands.'
     )
     parser.add_argument(
-        '--md_ph',
+        '--md_ph', type=float,
         help = 'Protonate the molecule according to this pH (float). '
         'This does not always give correct results. It is safer '
         'to provide correctly protonated input files.'
@@ -230,50 +247,44 @@ def get_parser():
     #)
     parser.add_argument(
         '--md_retain_charges', action='store_true',
-        help = 'Keep the mol2 charges.'
+        help = 'keep the mol2 charges.'
     )
     parser.add_argument(
         '--md_charge_method', type=str, default='am1bcc',
-        help = 'Use the specified charge method for all force fields.'
+        help = 'use the specified charge method for all force fields.'
     )
-    #   choices = standardChargeMethods + chargePluginNameList,
-    #   help = 'Use the specified charge method for all force fields. ' + ', '.join(chargeMethodsHelp))
     parser.add_argument(
         '--md_charge_multiplier', type=float, default=1.0,
-        help = 'Multiply partial charges with this factor. Can only be used '
+        help = 'multiply partial charges with this factor. Can only be used '
         'in combination with --charge_method.'
     )
     parser.add_argument(
         '--md_box_type', type=str, default='dodecahedron',
-        help = 'Buffer from the solute to the edge of the '
+        help = 'buffer from the solute to the edge of the '
         'dodecahedron shaped solvent box. Set to 0 '
         'to disable solvation (and ionisation).\n'
         'Default: dodecahedron'
     )
     parser.add_argument(
         '--md_box_buffer', type=float, default=1.0,
-        help = 'Buffer from the solute to the edge of the '
+        help = 'buffer from the solute to the edge of the '
         'solvent box. Set to 0 '
         'to disable solvation (and ionisation).\n'
     )
     parser.add_argument(
-        '--md_water',
-        help = 'Solvent model to use in topology files. If not '
+        '--md_water_model', type=str,
+        help = 'solvent model to use in topology files. If not '
         'specified the solvent will not be specified in '
         'the topology. Suggested water models are: '
         '"opc", "spce", "tip4pew", "spc" or "tip3p".'
     )
     parser.add_argument(
         '--md_pname', type=str, default='NA',
-        help = 'Name of the positive counter ion in Solvent.'
+        help = 'name of the positive counter ion in Solvent.'
     )
     parser.add_argument(
         '--md_nname', type=str, default='CL',
-        help = 'Name of the negative counter ion in Solvent.'
-    )
-    parser.add_argument(
-        '-v', '--verbose', action='store_true',
-        help = 'Verbose output.'
+        help = 'name of the negative counter ion in Solvent.'
     )
     args = parser.parse_args()
 
@@ -281,9 +292,9 @@ def get_parser():
 
     if args.out is None:
         if args.ligand:
-            args.out = os.path.splitext(os.path.basename(args.ligand))[0] + '_out.pdbqt'
+            args.out = os.path.splitext(os.path.basename(args.ligand))[0]
         else:
-            args.out = 'ligand_out.pdbqt'
+            args.out = 'ligand_out'
 
     return args 
 
@@ -299,6 +310,11 @@ def set_config(args):
     conf_def = vars(args).copy()
     del conf_def['inp']
     [conf.setdefault(k, v) for k, v in conf_def.items()]
+
+    if isinstance(conf['md_ligand_id'], str):
+        conf['md_ligand_id'] = [int(s) for s in conf['md_ligand_id'].split(',')]
+    elif isinstance(conf['md_ligand_id'], int):
+        conf['md_ligand_id'] = [conf['md_ligand_id']]
 
     return conf
 
@@ -354,10 +370,14 @@ def vina_dock_main(conf):
     return scores
        
 def stage3_main(conf):
-    #ligand = conf['ligand']
-    ligand = './{}_vinaout_{:02}.mol'.format(os.path.splitext(os.path.basename(conf['ligand']))[0], 0)
+
+    if conf['runvina']:
+        ligand_id = conf['md_ligand_id']
+    else:
+        ligand_id = [0]
+        ligand = conf['ligand']
+        output = conf['out']
     smiles = conf['input_smiles']
-    output = conf['output']
     ffligand = conf['md_ffligand']
     ffprotein = conf['md_ffprotein']
     calibration = conf['md_calibration']
@@ -371,17 +391,20 @@ def stage3_main(conf):
     mergetopology = conf['md_mergetopology']
     box_type = conf['md_box_type']
     box_buffer = conf['md_box_buffer']
-    water = conf['md_water']
+    water = conf['md_water_model']
     pname = conf['md_pname']
     nname = conf['md_nname']
     verbose = conf['verbose']
 
-    print('ligand:', ligand)
-
-    stage3_run(ligand, smiles, output, ffligand, ffprotein, calibration, 
-               keep_ligand_name, ph, retain_charges, charge_method, charge_multiplier,
-               mergecoordinates, mergetopology, box_type, box_buffer,
-               water, pname, nname, verbose)
+    for lid in ligand_id:
+        if conf['runvina']:
+            ligand = './{}_vinaout_{:02}.mol'.format(conf['out'], lid)
+            output = '{}_vinaout_{:02}'.format(conf['out'], lid)
+        print('ligand:', ligand)
+        stage3_run(ligand, smiles, output, ffligand, ffprotein, calibration, 
+                   keep_ligand_name, ph, retain_charges, charge_method, charge_multiplier,
+                   mergecoordinates, mergetopology, box_type, box_buffer,
+                   water, pname, nname, verbose)
 
 def main():
     args = get_parser()
@@ -394,9 +417,13 @@ def main():
         print('{}: {}'.format(k, v))
     print('====================================')
 
-    vina_dock_main(conf)
+    if conf['runvina']:
+        print('Run AutoDock Vina docking simulation')
+        vina_dock_main(conf)
 
-    stage3_main(conf)
+    if conf['runmdinput']:
+        print('Run Gromacs MD input generator')
+        stage3_main(conf)
 
 if __name__ == '__main__':
     main()

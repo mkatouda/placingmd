@@ -1,9 +1,20 @@
+# System settings: required
+
 ligand: './inputs/1iep_ligand.sdf'
 refligand: './inputs/1iep_ligand.sdf'
 receptor_pdbqt: './inputs/1iep_receptorH.pdbqt'
 receptor: './inputs/1iep_receptorH.pdb'
-out: '1iep_ligand_out.pdbqt'
-output: '1iep_protein_ligand'
+
+# Job settings
+
+out: '1iep_ligand'
+verbose: True
+runvina: True
+runmdinput: True
+
+# AutoDock Vina settings
+
+vina_score_only: True
 vina_center_x: 15.190
 vina_center_y: 53.903
 vina_center_z: 16.917
@@ -11,15 +22,25 @@ vina_size_x: 20.0
 vina_size_y: 20.0
 vina_size_z: 20.0
 vina_cpu: 8
+vina_seed: 1234
 vina_exhaustiveness: 8
 vina_num_modes: 9
-vina_seed: 1234
+vina_min_rmsd: 1
+vina_energy_range : 3
+vina_spacing: 0.375
+vina_verbosity: 1
+vina_exec: binary
+vina_bin_path: 'vina'
+
+# MD input settings
+
+md_ligand_id: [0]
 md_ffligand: 'gaff'
 md_ffpritein: 'amber99sb-ildn'
-md_charge_method: 'qeq'
-md_water: 'tip3p'
+md_charge_method: 'am1bcc'
 md_box_type: 'dodecahedron'
 md_box_buff: 1.0
+md_water_model: 'tip3p'
 md_pname: 'NA'
 md_nname: 'CL'
-verbose: True
+
