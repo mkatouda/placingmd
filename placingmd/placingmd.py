@@ -279,6 +279,10 @@ def get_parser():
         '"opc", "spce", "tip4pew", "spc" or "tip3p".'
     )
     parser.add_argument(
+        '--md_conc', type=str, default=0.0,
+        help = 'Specify salt concentration (mol/liter).'
+    )
+    parser.add_argument(
         '--md_pname', type=str, default='NA',
         help = 'name of the positive counter ion in Solvent.'
     )
@@ -392,6 +396,7 @@ def stage3_main(conf):
     box_type = conf['md_box_type']
     box_buffer = conf['md_box_buffer']
     water = conf['md_water_model']
+    conc = conf['md_conc']
     pname = conf['md_pname']
     nname = conf['md_nname']
     verbose = conf['verbose']
@@ -404,7 +409,7 @@ def stage3_main(conf):
         stage3_run(ligand, smiles, output, ffligand, ffprotein, calibration, 
                    keep_ligand_name, ph, retain_charges, charge_method, charge_multiplier,
                    mergecoordinates, mergetopology, box_type, box_buffer,
-                   water, pname, nname, verbose)
+                   water, conc, pname, nname, verbose)
 
 def main():
     args = get_parser()

@@ -25,22 +25,23 @@ vina_cpu: 8
 vina_seed: 1234
 vina_exhaustiveness: 8
 vina_num_modes: 9
-vina_min_rmsd: 1
+vina_min_rmsd : 1
 vina_energy_range : 3
-vina_spacing: 0.375
-vina_verbosity: 1
-vina_exec: binary
-vina_bin_path: 'vina'
+vina_spacing : 0.375
+vina_verbosity : 1
+vina_exec : binary
+vina_bin_path : 'vina'
 
 # MD input settings
 
-md_ligand_id: [0]
+md_ligand_id : [0] #[0, 1, 2]
 md_ffligand: 'gaff'
 md_ffpritein: 'amber99sb-ildn'
 md_charge_method: 'am1bcc'
 md_box_type: 'dodecahedron'
 md_box_buff: 1.0
 md_water_model: 'tip3p'
+md_conc: 0.0
 md_pname: 'NA'
 md_nname: 'CL'
 
