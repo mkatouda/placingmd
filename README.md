@@ -7,7 +7,7 @@ MIT
 
 ## Required software
 
-STaGE3 also depends on a number of other softwares, some of which can should be installed seperately. They are:  
+placingmd also depends on a number of other softwares, some of which can should be installed seperately. They are:  
 
 - Required  
 1. Antechamber (part of Ambertools, available after filling in form at http://ambermd.org/AmberTools-get.html )  
@@ -114,8 +114,8 @@ optional arguments:
   -rqt RECEPTOR_PDBQT, --receptor_pdbqt RECEPTOR_PDBQT
                         rigid part of the receptor (PDBQT) (default: None)
   -r RECEPTOR, --receptor RECEPTOR
-                        merge the created coordinates file (.gro) with an
-                        already existing coordinate file (.pdb or .gro), e.g. for combining 
+                        merge the created coordinates file (.gro) with an  
+                        already existing coordinate file (.pdb or .gro), e.g. for combining
                         ligand coordinates with protein coordinates. The generated topology
                         will contain both the ligand and the protein. If a .gro file of the
                         protein is provided and there exists a corresponding .top file that
@@ -142,7 +142,8 @@ optional arguments:
                         size in the Y dimension (Angstroms) (default: 22.5)
   --vina_size_z VINA_SIZE_Z
                         size in the Z dimension (Angstroms) (default: 22.5)
-  --vina_cpu VINA_CPU   the number of CPUs to use (the default is to try todetect the number of CPUs or, failing that, use 1) (default: 4)
+  --vina_cpu VINA_CPU   the number of CPUs to use (the default is to try todetect the number of CPUs or,
+                        failing that, use 1) (default: 4)
   --vina_scoring VINA_SCORING
                         force field name: vina(default), ad4, vinardo (default: vina)
   --vina_seed VINA_SEED
@@ -150,13 +151,15 @@ optional arguments:
   --vina_exhaustiveness VINA_EXHAUSTIVENESS
                         exhaustiveness of the global search(roughly proportional to time): 1+ (default: 8)
   --vina_max_evals VINA_MAX_EVALS
-                        number of evaluations in each MC run (if zero,which is the default, the number of MC steps isbased on heuristics) (default: 0)
+                        number of evaluations in each MC run (if zero,which is the default,
+                        the number of MC steps isbased on heuristics) (default: 0)
   --vina_num_modes VINA_NUM_MODES
                         maximum number of binding modes to generate (default: 9)
   --vina_min_rmsd VINA_MIN_RMSD
                         minimum RMSD between output poses (default: 1)
   --vina_energy_range VINA_ENERGY_RANGE
-                        maximum energy difference between the best bindingmode and the worst one displayed (kcal/mol) (default: 3)
+                        maximum energy difference between the best bindingmode 
+                        and the worst one displayed (kcal/mol) (default: 3)
   --vina_spacing VINA_SPACING
                         grid spacing (Angstrom) (default: 0.375)
   --vina_verbosity VINA_VERBOSITY
