@@ -389,7 +389,7 @@ def stage3_main(conf):
     charge_method = conf['md_charge_method']
     charge_multiplier = conf['md_charge_multiplier']
     mergecoordinates = conf['receptor']
-    mergetopology = conf['md_mergetopology']
+    mergetopology = conf['md_receptortopology']
     box_type = conf['md_box_type']
     box_buffer = conf['md_box_buffer']
     water = conf['md_water_model']
