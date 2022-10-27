@@ -39,17 +39,16 @@ from meekovina import vina_dock
 from stage3 import stage3_run
 
 def get_parser():
+    class customHelpFormatter(argparse.ArgumentDefaultsHelpFormatter,
+                              argparse.RawTextHelpFormatter):
+        pass
+
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="python script easy to use Autodock Vina basic docking simulation"
-        #"- Ligand input from LIGAND file\n"
-        #"meekovina -l LIGAND -r RECEPTOR -o OUTPUT -cx CENTER_X -cy CENTER_Y -cz CENTER_Z\n\n"
-        #"- Ligand input from file and center of box is determined by the REFLIGAND file\n"
-        #"meekovina -l LIGAND -r RECEPTOR -lr REFLIGAND -o OUTPUT\n\n"
-        #"- Ligand input from SMILES string\n"
-        #"meekovina --input_smiles INPUT_SMILES -r RECEPTOR -o OUTPUT -cx CENTER_X -cy CENTER_Y -cz CENTER_Z\n\n"
-        #"- Ligand input from SMILES string and center of box is determined by the REFLIGAND file\n"
-        #"meekovina --input_smiles INPUT_SMILES -r RECEPTOR -lr REFLIGAND -o OUTPUT\n"
+        #formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        #formatter_class=argparse.RawTextHelpFormatter,
+        formatter_class=customHelpFormatter,
+        description="python script easy to generate GROMACS input files of protein-ligand complex\n"
+        "after performing Autodock Vina basic docking simulation"
     )
     parser.add_argument(
         '-i', '--inp', type=str,
