@@ -15,7 +15,7 @@ Protein-Ligand Attached Complex Input Generator for Molecular Dynamics
 * meeko
 * meekovina
 * vina 1.2.3 python API
-* AutoDock-Vina 1.2.3 binary
+* AutoDock Vina 1.2.3 binary
 
 ## Install
 
@@ -37,6 +37,8 @@ import argparse
 import yaml
 from meekovina import vina_dock
 from stage3 import stage3_run
+from stage3.config import ffligandsString, standardChargeMethods, chargeMethodsHelp, waterModels, boxTypes
+
 
 def get_parser():
     class customHelpFormatter(argparse.ArgumentDefaultsHelpFormatter,
@@ -73,30 +75,26 @@ def get_parser():
     )
     parser.add_argument(
         '-r', '--receptor', type=str,
-        help = 'merge the created coordinates file (.gro) with an '
+        help = 'merge the created coordinates file (.gro) with an\n'
         'already existing coordinate file (.pdb or .gro), '
-        'e.g. for combining '
-        'ligand coordinates with protein coordinates. The generated topology '
-        'will contain both the ligand and the protein. If a .gro file of the '
-        'protein is provided and there exists a corresponding .top file that '
-        'toplogy file will be used for the protein, otherwise a new topology '
+        'e.g. for combining \n'
+        'ligand coordinates with protein coordinates. The generated topology\n'
+        'will contain both the ligand and the protein. If a .gro file of the\n'
+        'protein is provided and there exists a corresponding .top file that\n'
+        'toplogy file will be used for the protein, otherwise a new topology\n'
         'file is generated.'
     )
     parser.add_argument(
-        '-t', '--md_mergetopology',
-        help = 'merge the created topology file (.top) with an '
-        'already existing topology file. '
-        'Must be used in combination with --mergecoordinates '
+        '-t', '--md_receptortopology',
+        help = 'merge the created topology file (.top) with an\n'
+        'already existing topology file.\n'
+        'Must be used in combination with --receptor\n'
         'with a .gro file of the protein.'
     )
     parser.add_argument(
         '-o', '--out', type=str,
-        help = "output models (PDBQT), the default is chosen based on the ligand file name"
+        help = 'basename of the output files (file extensions will be appended).'
     )
-    #parser.add_argument(
-    #    '--output', type=str,
-    #    help = "Base name of the output files of MD input (file extensions will be appended)."
-    #)
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help = 'verbose output.'
@@ -177,7 +175,7 @@ def get_parser():
     )
     parser.add_argument(
         '--vina_verbosity', type=int, default=1,
-        help = "verbosity (0=no output, 1=normal, 2=verbose)"
+        help = "verbosity in AutoDock Vina simulation (0=no output, 1=normal, 2=verbose)"
     )
     parser.add_argument(
         '--vina_score_only', action='store_true',
@@ -189,29 +187,31 @@ def get_parser():
     )
     parser.add_argument(
         '--vina_boxauto', action='store_true',
-        help = 'boxauto'
+        help = 'enable automatic box determination algorithm'
     )
     parser.add_argument(
         '--vina_gybox_ratio', type=float, default=2.5,
-        help = "box ratio"
+        help = "scaling factor of radius of gyration to determine of docking box\n"
+        "with automatic box determination algorithm"
     )
     parser.add_argument(
         '--vina_exec', type=str, default='lib',
-        help = "select AutoDock-Vina executer"
+        help = "select AutoDock Vina executer"
     )
     parser.add_argument(
         '--vina_bin_path', type=str, default='vina',
-        help = "AutoDock-Vina binary path"
+        help = "specify AutoDock Vina binary path"
     )
     parser.add_argument(
         '--md_ligand_id', type=str, default='0',
-        help = 'target Ligand ID(s) to generate MD input, specified as a'
-        'comma-separated string without spaces.'
+        help = 'target Ligand ID(s) to generate MD input, specified\n'
+        'as a comma-separated string without spaces.'
     )
     parser.add_argument(
         '--md_ffligand', type=str, default='gaff',
-        help = 'force fields to generate parameters for, specified as a '
-        'comma-separated string without spaces.'
+        help = 'Force fields to generate parameters for, specified\n'
+        'as a comma-separated string without spaces:\n'
+        + ', '.join(ffligandsString)
     )
     parser.add_argument(
         '--md_ffprotein', type=str,
@@ -219,24 +219,24 @@ def get_parser():
     )
     parser.add_argument(
         '--md_calibration', type=str,
-        help = 'modify van der Waals parameters according to specified '
+        help = 'modify van der Waals parameters according to specified\n'
         'calibration file.'
     )
     parser.add_argument(
         '--md_keep_ligand_name', action='store_true',
-        help = 'do not rename the ligand in the output files. '
-        'When doing e.g. solvation or binding free energy '
-        'it is convenient to always call the ligand the '
-        'same thing - in this case "LIG". If this option '
-        'is set the ligand name will not be changed to "LIG". '
-        'If you need to assign parameters to e.g. co-factors '
-        'it is good to keep their names to tell them apart '
+        help = 'Do not rename the ligand in the output files.\n'
+        'When doing e.g. solvation or binding free energy\n'
+        'it is convenient to always call the ligand the\n'
+        'same thing - in this case "LIG". If this option\n'
+        'is set the ligand name will not be changed to "LIG".\n'
+        'If you need to assign parameters to e.g. co-factors\n'
+        'it is good to keep their names to tell them apart\n'
         'from ligands.'
     )
     parser.add_argument(
         '--md_ph', type=float,
-        help = 'Protonate the molecule according to this pH (float). '
-        'This does not always give correct results. It is safer '
+        help = 'Protonate the molecule according to this pH (float).\n'
+        'This does not always give correct results. It is safer\n'
         'to provide correctly protonated input files.'
     )
     #parser.add_argument(
@@ -250,32 +250,30 @@ def get_parser():
     )
     parser.add_argument(
         '--md_charge_method', type=str, default='am1bcc',
-        help = 'use the specified charge method for all force fields.'
+        help = 'Use the specified charge method for all force fields:\n'
+        + '\n'.join(chargeMethodsHelp) + '\n'
     )
     parser.add_argument(
         '--md_charge_multiplier', type=float, default=1.0,
-        help = 'multiply partial charges with this factor. Can only be used '
+        help = 'multiply partial charges with this factor. Can only be used\n'
         'in combination with --charge_method.'
     )
     parser.add_argument(
         '--md_box_type', type=str, default='dodecahedron',
-        help = 'buffer from the solute to the edge of the '
-        'dodecahedron shaped solvent box. Set to 0 '
-        'to disable solvation (and ionisation).\n'
-        'Default: dodecahedron'
+        help = 'Type of simulation box: ' 
+        + ', '.join(boxTypes)
     )
     parser.add_argument(
         '--md_box_buffer', type=float, default=1.0,
-        help = 'buffer from the solute to the edge of the '
-        'solvent box. Set to 0 '
-        'to disable solvation (and ionisation).\n'
+        help = 'Buffer from the solute to the edge of the\n'
+        'solvent box. Set to 0 to disable solvation (and ionisation).'
     )
     parser.add_argument(
         '--md_water_model', type=str,
-        help = 'solvent model to use in topology files. If not '
-        'specified the solvent will not be specified in '
-        'the topology. Suggested water models are: '
-        '"opc", "spce", "tip4pew", "spc" or "tip3p".'
+        help = 'Solvent model to use in topology files. If not\n'
+        'specified the solvent will not be specified in\n'
+        'the topology. Suggested water models are:\n'
+        + ', '.join(waterModels)
     )
     parser.add_argument(
         '--md_conc', type=str, default=0.0,
