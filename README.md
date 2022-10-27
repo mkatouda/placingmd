@@ -3,7 +3,8 @@
 Protein-Ligand Attached Complex Input Generator for Molecular Dynamics 
 
 ## Licence
-MIT
+
+This package is distributed under the MIT License.
 
 ## Required software
 
@@ -34,7 +35,7 @@ conda activate py38-placingmd
 
 - Run the following command to install required conda packages  
 <pre>
-conda install -c conda-forge numpy ambertools acpype openbabel gromacs vina  
+conda install -c conda-forge pyyaml numpy ambertools acpype openbabel gromacs vina  
 </pre>
 
 - Install meekovina and STaGE3 from github  
