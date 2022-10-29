@@ -309,7 +309,6 @@ def set_config(args):
 
     # Set up default config values from program arguments
     conf_def = vars(args).copy()
-    del conf_def['inp']
     [conf.setdefault(k, v) for k, v in conf_def.items()]
 
     if isinstance(conf['md_ligand_id'], str):
@@ -323,6 +322,7 @@ def vina_dock_main(conf):
     protein_pdbqt_path = conf['receptor_pdbqt']
     ligand_path = conf['ligand']
     ref_ligand_path = conf['refligand']
+    outbasename = conf['out']
     vina_exec = conf['vina_exec']
     vina_bin_path = conf['vina_bin_path']
     vina_boxauto = conf['vina_boxauto']
@@ -348,6 +348,7 @@ def vina_dock_main(conf):
     scores = vina_dock(protein_pdbqt_path,
                        ligand_path,
                        ref_ligand_path,
+                       outbasename,
                        vina_exec,
                        vina_bin_path,
                        vina_boxcenter,
