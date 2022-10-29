@@ -2,11 +2,11 @@ title                   = Protein-ligand complex NVT MD equilibration
 define                  = -DPOSRES_LIG -DPOSRES_FC_BB=1000.0 ; position restrain the protein and ligand
 ; Run parameters
 integrator              = md        ; leap-frog integrator
-nsteps                  = 500000    ; 2 * 500000 = 1000 ps (1 ns)
+nsteps                  = 5000      ; 0.002 * 5000 = 10 ps
 dt                      = 0.002     ; 2 fs
 ; Output control
 nstenergy               = 5000      ; save energies every 10.0 ps
-nstlog                  = 5000      ; update log file every 10.0 ps
+nstlog                  = 500       ; update log file every 1.0 ps
 nstxout-compressed      = 50000     ; save coordinates every 10.0 ps
 ; Bond parameters
 continuation            = no        ; first dynamics run
