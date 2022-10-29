@@ -1,6 +1,6 @@
 #!/bin/bash
 
-input=./inputs/input.yml
+input=./example/inputs/input.yml
 
 placingmd -i ${input}
 
