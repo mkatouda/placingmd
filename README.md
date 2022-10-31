@@ -6,6 +6,10 @@ Protein-Ligand Attached Complex Input Generator for Molecular Dynamics
 
 This package is distributed under the MIT License.
 
+## Tutorial
+
+You can try tutorial of placingmd to know how to install and run: https://colab.research.google.com/github/mkatouda/placingmd/blob/main/placingmd_tutorial_jp.ipynb
+
 ## Required software
 
 placingmd also depends on a number of other softwares, some of which can should be installed seperately. They are:  
@@ -100,9 +104,7 @@ usage: placingmd [-h] [-i INP] [-l LIGAND] [-s INPUT_SMILES] [-lr REFLIGAND]
                  [--md_box_type MD_BOX_TYPE] [--md_box_buffer MD_BOX_BUFFER]
                  [--md_water_model MD_WATER_MODEL] [--md_conc MD_CONC]
                  [--md_pname MD_PNAME] [--md_nname MD_NNAME]
-</pre>
 
-<pre>
 optional arguments:
   -h, --help            show this help message and exit
   -i INP, --inp INP     yaml style input file, overwriting argument values (default: None)
@@ -323,7 +325,8 @@ placingmd -i input.yml
 </pre>
 
 Keywards of yaml file are the same in the name of command line options.  
-See above explation of command line options.  
+See above explanation of command line options.  
 
 ## Author
+
 Michio Katouda (katouda@rist.or.jp)  
