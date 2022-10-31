@@ -8,14 +8,15 @@ This package is distributed under the MIT License.
 
 ## Tutorial
 
-You can try tutorial of placingmd to know how to install and run: https://colab.research.google.com/github/mkatouda/placingmd/blob/main/placingmd_tutorial_jp.ipynb
+You can try tutorial of placingmd to know how to install and run:  
+https://colab.research.google.com/github/mkatouda/placingmd/blob/main/placingmd_tutorial_jp.ipynb
 
 ## Required software
 
 placingmd also depends on a number of other softwares, some of which can should be installed seperately. They are:  
 
 - Required  
-1. Antechamber (part of Ambertools, available after filling in form at http://ambermd.org/AmberTools-get.html )  
+1. AmberTools (https://ambermd.org/AmberTools.php )  
 2. acpype (https://alanwilter.github.io/acpype/)
 3. openbabel (http://openbabel.org/wiki/Main_Page )  
 4. gromacs (https://www.gromacs.org/) 
