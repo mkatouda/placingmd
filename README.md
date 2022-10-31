@@ -33,51 +33,51 @@ placingmd also depends on a number of other softwares, some of which can should 
 ## Installation (Required)
 
 - Create conda virtual environment  
-<pre>
+```
 conda create -n py38-placingmd python=3.8  
 conda activate py38-placingmd  
-</pre>
+```
 
 - Run the following command to install required conda packages  
-<pre>
+```
 conda install -c conda-forge pyyaml numpy ambertools acpype openbabel gromacs vina  
-</pre>
+```
 
 - Install meekovina and STaGE3 from github  
-<pre>
+```
 pip install git+https://github.com/mkatouda/meekovina.git
 pip install git+https://github.com/mkatouda/stage3.git
-</pre>
+```
 
 - Install placingmd from github  
-<pre>
+```
 pip install git+https://github.com/mkatouda/placingmd.git
-</pre>
+```
 
 - Install placingmd from local repository  
-<pre>
+```
 git clone https://github.com/mkatouda/placingmd.git
 cd placingmd
 pip install .
-</pre>
+```
 
 ## Installation (Optional)
 
 - Resiter and download MATCH program from offical web cite and extract archive file
-<pre>
+```
 tar xzvf MATCH_RELEASE.tar.gz
-</pre>
+```
 
 - Set up enviroment variables for MATCH
-<pre>
+```
 export PerlChemistry=/path/to/MATCH_RELEASE/PerlChemistry
 export MATCH=${HOME}/path/to/MATCH_RELEASE/MATCH
 export PATH=${PATH}:${MATCH}/scripts
-</pre>
+```
 
 ## Command usage
 
-<pre>
+```
 usage: placingmd [-h] [-i INP] [-l LIGAND] [-s INPUT_SMILES] [-lr REFLIGAND] 
                  [-rqt RECEPTOR_PDBQT] [-r RECEPTOR] [-t MD_RECEPTORTOPOLOGY]
                  [-o OUT] [-v] [--runvina] [--runmdinput]
@@ -229,7 +229,7 @@ optional arguments:
   --md_conc MD_CONC     Specify salt concentration (mol/liter). (default: 0.0)
   --md_pname MD_PNAME   name of the positive counter ion in Solvent. (default: NA)
   --md_nname MD_NNAME   name of the negative counter ion in Solvent. (default: CL)
-</pre>
+```
 
 ## Exmaples of command line usage
 
@@ -240,12 +240,12 @@ GAFF2 with AM1-BCC charge method and AMBER99SB-ILDN force fields are used for li
 Mininum distance of 1.0 nm from the solute to the edge of the cubic periodic box.  
 TIP3P water model is used and the system is neutralized adding charged counter ions (K+) or (Cl-).  
 
-<pre>
+```
 placingmd -l ligand.mol -lr refligand.mol -rqt protein.pdbqt -r protein.pdb -o protein_ligand_solvated \
        --vina_size_x 20.0 --vina_size_y 20.0 --vina_size_z 20.0 --vina_num_modes 9 \
        --md_ffligand gaff2 --md_charge_method am1bcc --md_ffprotein amber99sb-ildn \
        --water_model tip3p -md_box_type cubic -md_box_buff 1.0 --md_conc 0.1 --md_pname K --md_nname CL
-</pre>
+```
 
 ### Protein-ligand binding system without AutoDock Vina docking simulation
 
@@ -254,11 +254,11 @@ GAFF2 with AM1-BCC charge method and AMBER99SB-ILDN force fields are used for li
 Mininum distance of 1.0 nm from the solute to the edge of the cubic periodic box.  
 TIP3P water model is used and the system is neutralized adding charged counter ions (K+) or (Cl-).  
 
-<pre>
+```
 placingmd -l ligand.mol -r protein.pdb -o protein_ligand_solvated \  
        --md_ffligand gaff2 --md_charge_method am1bcc --md_ffprotein amber99sb-ildn \
        --water_model tip3p -md_box_type cubic -md_box_buff 1.0 --md_conc 0.1 --md_pname K --md_nname CL
-</pre>
+```
 
 ## Exmaples of yaml input usage
 
@@ -270,7 +270,7 @@ Mininum distance of 1.0 nm from the solute to the edge of the cubic periodic box
 
 Prepare input yaml file input.yml:
 
-<pre>
+```
 # System settings: required
 
 ligand: './inputs/1iep_ligand.sdf'
@@ -317,13 +317,13 @@ md_water_model: 'tip3p'
 md_conc: 0.1
 md_pname: 'NA'
 md_nname: 'CL'
-</pre>
+```
 
 Then, run placingmd in command line:
 
-<pre>
+```
 placingmd -i input.yml
-</pre>
+```
 
 Keywards of yaml file are the same in the name of command line options.  
 See above explanation of command line options.  
