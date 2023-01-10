@@ -100,11 +100,11 @@ def get_parser():
         help = 'verbose output.'
     )
     parser.add_argument(
-        '--runvina', action='store_false',
+        '--runvina', action='store_true',
         help = 'run AutoDock Vina docking.'
     )
     parser.add_argument(
-        '--runmdinput', action='store_false',
+        '--runmdinput', action='store_true',
         help = 'run MD input generator.'
     )
 
@@ -208,13 +208,13 @@ def get_parser():
         'as a comma-separated string without spaces.'
     )
     parser.add_argument(
-        '--md_ffligand', type=str, default='gaff',
+        '--md_ffligand', type=str, default='gaff2',
         help = 'Force fields to generate parameters for, specified\n'
         'as a comma-separated string without spaces:\n'
         + ', '.join(ffligandsString)
     )
     parser.add_argument(
-        '--md_ffprotein', type=str,
+        '--md_ffprotein', type=str, default='amber99sb-ildn',
         help = 'force field of protein.'
     )
     parser.add_argument(
@@ -276,7 +276,7 @@ def get_parser():
         + ', '.join(waterModels)
     )
     parser.add_argument(
-        '--md_conc', type=str, default=0.0,
+        '--md_conc', type=float, default=0.0,
         help = 'Specify salt concentration (mol/liter).'
     )
     parser.add_argument(
